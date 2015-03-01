@@ -70,4 +70,7 @@ let play_music =
 let fade_out_music =
   foreign "Mix_FadeOutMusic" (int @-> returning int)
 
+let halt_music =
+  foreign "Mix_HaltMusic" (void @-> returning int)
+
 end
