@@ -1,0 +1,23 @@
+# -*- conf -*-
+OASISFormat: 0.4
+Name:        tsdl-mixer
+Version:     0
+Synopsis:    SDL2_mixer bindings to go with Tsdl
+Authors:     Julian Squires
+License:     BSD-3-clause
+Plugins:     META (0.4)
+
+Library "tsdl_mixer"
+  Path:         src
+  Modules:      Tsdl_mixer
+  BuildDepends: ctypes, tsdl
+  BuildTools:   ocamlbuild
+  CCLib:        -lSDL2_mixer
+  XMETAEnable:  true
+
+# Executable "test"
+#   Install:      false
+#   Path:         test
+#   BuildTools:   ocamlbuild
+#   BuildDepends: tsdl, tsdl_mixer
+#   MainIs:       test.ml
