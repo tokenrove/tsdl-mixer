@@ -25,8 +25,24 @@ let init =
 let quit =
   foreign "Mix_Quit" (void @-> returning void)
 
-let open_audio =
-  foreign "Mix_OpenAudio" (int @-> int @-> int @-> int @-> returning int)
+let mix_channels = 8
+let default_frequency = 22050
+let default_format = Sdl.Audio.s16_sys
+let default_channels = 2
+let max_volume = 128
+
+type fading = NoFading | FadingOut | FadingIn
+type music_type = None | Cmd | Wav | Mod | Mid | Ogg | Mp3 | Mp3_Mad | Flac | Modplug
+
+let fading =
+  let read = function 0 -> NoFading | 1 -> FadingOut | 2 -> FadingIn | _ -> failwith "Unexpected value" in
+  let write = function NoFading -> 0 | FadingOut -> 1 | FadingIn -> 2 in
+  view ~read ~write int
+
+let music_type =
+  let read = function 0 -> None | 1 -> Cmd | 2 -> Wav | 3 -> Mod | 4 -> Mid | 5 -> Ogg | 6 -> Mp3 | 7 -> Mp3_Mad  | 8 -> Flac | 9 -> Modplug | _ -> failwith "Unexpected value" in
+  let write = function None -> 0 | Cmd -> 1 | Wav -> 2 | Mod -> 3 | Mid -> 4 | Ogg -> 5 | Mp3 -> 6 | Mp3_Mad -> 7 | Flac -> 8 | Modplug -> 9 in
+  view ~read ~write int
 
 type _chunk
 let chunk_struct : _chunk structure typ = structure "Mix_Chunk"
@@ -37,6 +53,14 @@ type _music
 let music_struct : _music structure typ = structure "Mix_Music"
 let music : _music structure ptr typ = ptr music_struct
 let music_opt : _music structure ptr option typ = ptr_opt music_struct
+
+let open_audio =
+  foreign "Mix_OpenAudio" (int @-> int @-> int @-> int @-> returning int)
+
+let allocate_channels n =
+  foreign "Mix_AllocateChannels" (int @-> returning int)
+
+(* extern DECLSPEC int SDLCALL Mix_QuerySpec(int *frequency,Uint16 *format,int *channels); *)
 
 let load_wav_rw =
   foreign "Mix_LoadWAV_RW" (Sdl.rw_ops @-> int @-> returning chunk_opt)
@@ -52,11 +76,33 @@ let load_wav file =
 let load_mus =
   foreign "Mix_LoadMUS" (string @-> returning music_opt)
 
+let load_mus_rw =
+  foreign "Mix_LoadMUS_RW" (Sdl.rw_ops @-> int @-> returning music_opt)
+
+let load_mus_type_rw =
+  foreign "Mix_LoadMUSType_RW" (Sdl.rw_ops @-> music_type @-> int @-> returning music_opt)
+
+let quickload_wav =
+  foreign "Mix_QuickLoad_WAV" (ptr uint8_t @-> returning chunk_opt)
+
+let quickload_raw =
+  foreign "Mix_QuickLoad_RAW" (ptr uint8_t @-> uint32_t @-> returning chunk_opt)
+
 let free_chunk =
   foreign "Mix_FreeChunk" (chunk @-> returning void)
 
 let free_music =
   foreign "Mix_FreeMusic" (music @-> returning void)
+
+(*
+ * extern DECLSPEC int SDLCALL Mix_GetNumChunkDecoders(void);
+ * extern DECLSPEC const char * SDLCALL Mix_GetChunkDecoder(int index);
+ * extern DECLSPEC int SDLCALL Mix_GetNumMusicDecoders(void);
+ * extern DECLSPEC const char * SDLCALL Mix_GetMusicDecoder(int index);
+ *)
+
+let get_music_type =
+  foreign "Mix_GetMusicType" (music_opt @-> returning music_type)
 
 let play_channel_timed =
   foreign "Mix_PlayChannelTimed" (int @-> chunk @-> int @-> int @-> returning int)
