@@ -119,10 +119,31 @@ let fade_out_music =
 let halt_music =
   foreign "Mix_HaltMusic" (void @-> returning int)
 
+let fading_music =
+  foreign "Mix_FadingMusic" (void @-> returning fading)
+
+let fading_channel =
+  foreign "Mix_FadingChannel" (int @-> returning fading)
+
 let bool =
   let read = function 0 -> false | _ -> true in
   let write = function true -> 1 | false -> 0 in
   view ~read ~write:write int
+
+let pause = foreign "Mix_Pause" (int @-> returning void)
+let resume = foreign "Mix_Resume" (int @-> returning void)
+let paused = foreign "Mix_Paused" (int @-> returning bool)
+
+let pause_music =
+  foreign "Mix_PauseMusic" (void @-> returning void)
+let resume_music =
+  foreign "Mix_ResumeMusic" (void @-> returning void)
+let rewind_music =
+  foreign "Mix_RewindMusic" (void @-> returning void)
+let paused_music = foreign "Mix_PausedMusic" (void @-> returning bool)
+
+let set_music_position =
+  foreign "Mix_SetMusicPosition" (double @-> returning int)
 
 let playing =
   foreign "Mix_Playing" (int @-> returning bool)
