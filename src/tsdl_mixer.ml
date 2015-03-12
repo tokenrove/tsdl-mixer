@@ -119,4 +119,25 @@ let fade_out_music =
 let halt_music =
   foreign "Mix_HaltMusic" (void @-> returning int)
 
+let bool =
+  let read = function 0 -> false | _ -> true in
+  let write = function true -> 1 | false -> 0 in
+  view ~read ~write:write int
+
+let playing =
+  foreign "Mix_Playing" (int @-> returning bool)
+
+let playing = function
+  | Some channel -> playing channel
+  | None -> playing (-1)
+
+let playing_music =
+  foreign "Mix_PlayingMusic" (void @-> returning bool)
+
+let get_chunk =
+  foreign "Mix_GetChunk" (int @-> returning chunk_opt)
+
+let close_audio =
+  foreign "Mix_CloseAudio" (void @-> returning void)
+
 end
