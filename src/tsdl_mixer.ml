@@ -65,7 +65,8 @@ let open_audio =
 let allocate_channels n =
   foreign "Mix_AllocateChannels" (int @-> returning int)
 
-(* extern DECLSPEC int SDLCALL Mix_QuerySpec(int *frequency,Uint16 *format,int *channels); *)
+let query_spec =
+  foreign "Mix_QuerySpec" (ptr int @-> ptr uint16_t @-> ptr int @-> returning int)
 
 let load_wav_rw =
   foreign "Mix_LoadWAV_RW" (Sdl.rw_ops @-> int @-> returning chunk_opt)
