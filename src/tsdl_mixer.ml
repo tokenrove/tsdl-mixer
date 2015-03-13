@@ -4,6 +4,11 @@ open Tsdl
 
 module Mixer = struct
 
+let bool =
+  let read = function 0 -> false | _ -> true in
+  let write = function true -> 1 | false -> 0 in
+  view ~read ~write:write int
+
 module Init = struct
   type t = Unsigned.uint32
   let i = Unsigned.UInt32.of_int
@@ -94,15 +99,74 @@ let free_chunk =
 let free_music =
   foreign "Mix_FreeMusic" (music @-> returning void)
 
-(*
- * extern DECLSPEC int SDLCALL Mix_GetNumChunkDecoders(void);
- * extern DECLSPEC const char * SDLCALL Mix_GetChunkDecoder(int index);
- * extern DECLSPEC int SDLCALL Mix_GetNumMusicDecoders(void);
- * extern DECLSPEC const char * SDLCALL Mix_GetMusicDecoder(int index);
- *)
+let get_num_chunk_decoders =
+  foreign "Mix_GetNumChunkDecoders" (void @-> returning int)
+let get_chunk_decoder =
+  foreign "Mix_GetChunkDecoder" (int @-> returning string)
+let get_num_music_decoders =
+  foreign "Mix_GetNumMusicDecoders" (void @-> returning int)
+let get_music_decoder =
+  foreign "Mix_GetMusicDecoder" (int @-> returning string)
 
 let get_music_type =
   foreign "Mix_GetMusicType" (music_opt @-> returning music_type)
+
+let mix_func = ptr void @-> ptr uint8_t @-> int @-> returning void
+let set_post_mix =
+  foreign "Mix_SetPostMix" (funptr mix_func @-> ptr void @-> returning void)
+let hook_music =
+  foreign "Mix_HookMusic" (funptr mix_func @-> ptr void @-> returning void)
+let hook_music_finished =
+  foreign "Mix_HookMusicFinished" (funptr (void @-> returning void) @-> returning void)
+let get_music_hook_data =
+  foreign "Mix_GetMusicHookData" (void @-> returning (ptr void))
+let channel_finished =
+  foreign "Mix_ChannelFinished" (funptr (int @-> returning void) @-> returning void)
+
+let channel_post = -2
+
+let effect_func_t = int @-> ptr void @-> int @-> ptr void @-> returning void
+let effect_done_t = int @-> ptr void @-> returning void
+
+let register_effect =
+  foreign "Mix_RegisterEffect" (int @-> funptr effect_func_t @-> funptr effect_done_t @-> ptr void @-> returning int)
+let unregister_effect =
+  foreign "Mix_UnregisterEffect" (int @-> funptr effect_func_t @-> returning int)
+
+let unregister_all_effects =
+  foreign "Mix_UnregisterAllEffects" (int @-> returning int)
+
+let effects_max_speed = "MIX_EFFECTSMAXSPEED"
+
+let set_panning =
+  foreign "Mix_SetPanning" (int @-> uint8_t @-> uint8_t @-> returning int)
+let set_position =
+  foreign "Mix_SetPosition" (int @-> int16_t @-> uint8_t @-> returning int)
+let set_distance =
+  foreign "Mix_SetDistance" (int @-> uint8_t @-> returning int)
+let set_reverse_stereo =
+  foreign "Mix_SetReverseStereo" (int @-> int @-> returning int)
+
+let reserve_channels =
+  foreign "Mix_ReserveChannels" (int @-> returning int)
+
+let group_channel =
+  foreign "Mix_GroupChannel" (int @-> int @-> returning bool)
+
+let group_channels =
+  foreign "Mix_GroupChannels" (int @-> int @-> int @-> returning bool)
+
+let group_available =
+  foreign "Mix_GroupAvailable" (int @-> returning int)
+
+let group_count =
+  foreign "Mix_GroupCount" (int @-> returning int)
+
+let group_oldest =
+  foreign "Mix_GroupOldest" (int @-> returning int)
+
+let group_newer =
+  foreign "Mix_GroupNewer" (int @-> returning int)
 
 let play_channel_timed =
   foreign "Mix_PlayChannelTimed" (int @-> chunk @-> int @-> int @-> returning int)
@@ -113,22 +177,59 @@ let play_channel channel chunk loops =
 let play_music =
   foreign "Mix_PlayMusic" (music @-> int @-> returning int)
 
+let fade_in_music =
+  foreign "Mix_FadeInMusic" (music @-> int @-> int @-> returning int)
+let fade_in_music_pos =
+  foreign "Mix_FadeInMusicPos" (music @-> int @-> int @-> double @-> returning int)
+let fade_in_channel_timed =
+  foreign "Mix_FadeInChannelTimed" (int @-> chunk @-> int @-> int @-> int @-> returning int)
+let fade_in_channel channel chunk loops ms =
+  fade_in_channel_timed channel chunk loops ms (-1)
+
+let volume =
+  foreign "Mix_Volume" (int @-> int @-> returning int)
+let volume_chunk =
+  foreign "Mix_VolumeChunk" (chunk @-> int @-> returning int)
+let volume_music =
+  foreign "Mix_VolumeMusic" (int @-> returning int)
+
+let halt_channel =
+  foreign "Mix_HaltChannel" (int @-> returning int)
+let halt_group =
+  foreign "Mix_HaltGroup" (int @-> returning int)
+let halt_music =
+  foreign "Mix_HaltMusic" (void @-> returning int)
+
+let expire_channel =
+  foreign "Mix_ExpireChannel" (int @-> int @-> returning int)
+
+let fade_out_channel =
+  foreign "Mix_FadeOutChannel" (int @-> int @-> returning int)
+let fade_out_group =
+  foreign "Mix_FadeOutGroup" (int @-> int @-> returning int)
 let fade_out_music =
   foreign "Mix_FadeOutMusic" (int @-> returning int)
 
-let halt_music =
-  foreign "Mix_HaltMusic" (void @-> returning int)
+let set_music_cmd =
+  foreign "Mix_SetMusicCMD" (string @-> returning int)
+
+let set_synchro_value =
+  foreign "Mix_SetSynchroValue" (int @-> returning int)
+let get_synchro_value =
+  foreign "Mix_GetSynchroValue" (void @-> returning int)
+
+ let set_sound_fonts =
+  foreign "Mix_SetSoundFonts" (string @-> returning int)
+let get_sound_fonts =
+  foreign "Mix_GetSoundFonts" (void @-> returning string)
+let each_sound_font =
+  foreign "Mix_EachSoundFont" (funptr (string @-> ptr void @-> returning int) @-> ptr void @-> returning int)
 
 let fading_music =
   foreign "Mix_FadingMusic" (void @-> returning fading)
 
 let fading_channel =
   foreign "Mix_FadingChannel" (int @-> returning fading)
-
-let bool =
-  let read = function 0 -> false | _ -> true in
-  let write = function true -> 1 | false -> 0 in
-  view ~read ~write:write int
 
 let pause = foreign "Mix_Pause" (int @-> returning void)
 let resume = foreign "Mix_Resume" (int @-> returning void)
