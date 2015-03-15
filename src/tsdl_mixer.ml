@@ -68,8 +68,11 @@ let allocate_channels n =
 let query_spec =
   foreign "Mix_QuerySpec" (ptr int @-> ptr uint16_t @-> ptr int @-> returning int)
 
+let rw_ops =
+  view ~read:Sdl.unsafe_rw_ops_of_ptr ~write:Sdl.unsafe_ptr_of_rw_ops nativeint
+
 let load_wav_rw =
-  foreign "Mix_LoadWAV_RW" (Sdl.rw_ops @-> int @-> returning chunk_opt)
+  foreign "Mix_LoadWAV_RW" (rw_ops @-> int @-> returning chunk_opt)
 
 let (>>=) o f =
   match o with | `Error e -> failwith (Printf.sprintf "Error %s" e)
@@ -83,10 +86,10 @@ let load_mus =
   foreign "Mix_LoadMUS" (string @-> returning music_opt)
 
 let load_mus_rw =
-  foreign "Mix_LoadMUS_RW" (Sdl.rw_ops @-> int @-> returning music_opt)
+  foreign "Mix_LoadMUS_RW" (rw_ops @-> int @-> returning music_opt)
 
 let load_mus_type_rw =
-  foreign "Mix_LoadMUSType_RW" (Sdl.rw_ops @-> music_type @-> int @-> returning music_opt)
+  foreign "Mix_LoadMUSType_RW" (rw_ops @-> music_type @-> int @-> returning music_opt)
 
 let quickload_wav =
   foreign "Mix_QuickLoad_WAV" (ptr uint8_t @-> returning chunk_opt)
