@@ -1,15 +1,27 @@
 opam-version: "1"
+name: "tsdl-mixer"
+version: "0.1"
 maintainer: "Julian Squires <julian@cipht.net>"
-homepage: "http://github.com/tokenrove/tsdl-mixer"
 authors: ["Julian Squires <julian@cipht.net>"]
-tags: [ "bindings" "audio" ]
+homepage: "http://github.com/tokenrove/tsdl-mixer"
+dev-repo: "https://github.com/tokenrove/tsdl-mixer.git"
+bug-reports: "http://github.com/tokenrove/tsdl-mixer/issues"
 license: "BSD3"
-depends: [ "ctypes" "tsdl" ]
-build:
-[
-  [ "oasis" "setup" ]
-  [ "ocaml" "setup.ml" "-configure" ]
-  [ "ocaml" "setup.ml" "-build" ]
-  [ "ocaml" "setup.ml" "-install" ]
+tags: [
+  "bindings"
+  "audio"
 ]
-remove: [["ocamlfind" "remove" "tsdl_mixer"]]
+build: [
+  ["oasis" "setup"]
+  ["ocaml" "setup.ml" "-configure"]
+  ["ocaml" "setup.ml" "-build"]
+]
+install: [
+  ["ocaml" "setup.ml" "-install"]
+]
+remove: ["ocamlfind" "remove" "tsdl_mixer"]
+depends: [
+  "ctypes" {>= "0.4.0"} "ctypes-foreign"
+  "tsdl" {> "0.8.1"}
+  "oasis" {build}
+]
