@@ -53,11 +53,13 @@ type _chunk
 let chunk_struct : _chunk structure typ = structure "Mix_Chunk"
 let chunk : _chunk structure ptr typ = ptr chunk_struct
 let chunk_opt : _chunk structure ptr option typ = ptr_opt chunk_struct
+type chunk = _chunk structure ptr
 
 type _music
 let music_struct : _music structure typ = structure "Mix_Music"
 let music : _music structure ptr typ = ptr music_struct
 let music_opt : _music structure ptr option typ = ptr_opt music_struct
+type music = _music structure ptr
 
 let open_audio =
   foreign "Mix_OpenAudio" (int @-> int @-> int @-> int @-> returning int)
