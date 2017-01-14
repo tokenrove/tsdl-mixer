@@ -18,7 +18,9 @@ module Init : sig
   val fluidsynth : t
 end
 
-val init : Init.t -> Init.t
+type 'a result = 'a Tsdl.Sdl.result
+
+val init : Init.t -> Init.t result
 val quit : unit -> unit
 val open_audio : int -> int -> int -> int -> int
 val close_audio : unit -> unit
@@ -38,10 +40,10 @@ type music_type =
 
 (** {1 Samples} *)
 type chunk
-val load_wav_rw : Tsdl.Sdl.rw_ops -> int -> chunk option
-val load_wav : string -> chunk option
-val quickload_wav : Unsigned.uint8 Ctypes_static.ptr -> chunk option
-val quickload_raw : Unsigned.uint8 Ctypes_static.ptr -> Unsigned.uint32 -> chunk option
+val load_wav_rw : Tsdl.Sdl.rw_ops -> int -> chunk result
+val load_wav : string -> chunk result
+val quickload_wav : Unsigned.uint8 Ctypes_static.ptr -> chunk result
+val quickload_raw : Unsigned.uint8 Ctypes_static.ptr -> Unsigned.uint32 -> chunk result
 val free_chunk : chunk -> unit
 val get_num_chunk_decoders : unit -> int
 val get_chunk_decoder : int -> string
@@ -69,14 +71,14 @@ val pause : int -> unit
 val resume : int -> unit
 val paused : int -> bool
 val playing : int option -> bool
-val get_chunk : int -> chunk option
+val get_chunk : int -> chunk result
 
 (** {1 Groups} *)
 
-val reserve_channels : int -> int
-val group_channel : int -> int -> bool
-val group_channels : int -> int -> int -> bool
-val group_available : int -> int
+val reserve_channels : int -> unit result
+val group_channel : int -> int -> bool result
+val group_channels : int -> int -> int -> bool result
+val group_available : int -> int result
 val group_count : int -> int
 val group_oldest : int -> int
 val group_newer : int -> int
@@ -86,9 +88,9 @@ val halt_group : int -> int
 (** {1 Music} *)
 
 type music
-val load_mus : string -> music option
-val load_mus_rw : Tsdl.Sdl.rw_ops -> int -> music option
-val load_mus_type_rw : Tsdl.Sdl.rw_ops -> music_type -> int -> music option
+val load_mus : string -> music result
+val load_mus_rw : Tsdl.Sdl.rw_ops -> int -> music result
+val load_mus_type_rw : Tsdl.Sdl.rw_ops -> music_type -> int -> music result
 val free_music : music -> unit
 val get_num_music_decoders : unit -> int
 val get_music_decoder : int -> string
@@ -137,16 +139,16 @@ val register_effect :
   int ->
   (int -> unit Ctypes_static.ptr -> int -> unit Ctypes_static.ptr -> unit) ->
   (int -> unit Ctypes_static.ptr -> unit) ->
-  unit Ctypes_static.ptr -> int
+  unit Ctypes_static.ptr -> unit result
 val unregister_effect :
   int ->
   (int -> unit Ctypes_static.ptr -> int -> unit Ctypes_static.ptr -> unit) ->
-  int
-val unregister_all_effects : int -> int
+  unit result
+val unregister_all_effects : int -> unit result
 val effects_max_speed : string
-val set_panning : int -> Unsigned.uint8 -> Unsigned.uint8 -> int
-val set_position : int -> int -> Unsigned.uint8 -> int
-val set_distance : int -> Unsigned.uint8 -> int
-val set_reverse_stereo : int -> int -> int
+val set_panning : int -> Unsigned.uint8 -> Unsigned.uint8 -> unit result
+val set_position : int -> int -> Unsigned.uint8 -> unit result
+val set_distance : int -> Unsigned.uint8 -> unit result
+val set_reverse_stereo : int -> int -> unit result
 
 end
