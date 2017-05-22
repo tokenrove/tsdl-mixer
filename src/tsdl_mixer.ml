@@ -29,7 +29,7 @@ let nonzero_to_ok =
   view ~read ~write:write_never int
 
 let zero_to_ok =
-  let read = function 0 -> Ok () | _ -> Ok () in
+  let read = function 0 -> Ok () | _ -> error () in
   view ~read ~write:write_never int
 
 let some_to_ok t =
